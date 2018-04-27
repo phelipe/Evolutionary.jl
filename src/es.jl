@@ -11,20 +11,21 @@
 # Plus-selection: parents are deterministically selected from the set of both the parents and offspring
 #
 function es(  objfun::Function, N::Int;
-              initPopulation::Individual = ones(N),
-              initStrategy::Strategy = strategy(),
-              recombination::Function = (rs->rs[1]),
-              srecombination::Function = (ss->ss[1]),
-              mutation::Function = ((r,m)->r),
-              smutation::Function = (s->s),
-              termination::Function = (x->false),
-              μ::Integer = 1,
-              ρ::Integer = μ,
-              λ::Integer = 1,
-              selection::Symbol = :plus,
-              iterations::Integer = N*100,
-              verbose = false, debug = false,
-              interim = false)
+    initPopulation::Individual = ones(N),
+    initStrategy::Strategy = strategy(),
+    recombination::Function = (rs->rs[1]),
+    srecombination::Function = (ss->ss[1]),
+    mutation::Function = ((r,m)->r),
+    smutation::Function = (s->s),
+    termination::Function = (x->false),
+    μ::Integer = 1,
+    ρ::Integer = μ,
+    λ::Integer = 1,
+    selection::Symbol = :plus,
+    iterations::Integer = N*100,
+    verbose = false, debug = false,
+    interim = false,
+    showBar = false)
 
     @assert ρ <= μ "Number of parents involved in the procreation of an offspring should be no more then total number of parents"
     if selection == :comma
@@ -32,6 +33,10 @@ function es(  objfun::Function, N::Int;
     end
 
     store = Dict{Symbol,Any}()
+
+    if showBar
+        bar(0.0, iterations)
+    end
 
     # Initialize parent population
     individual = getIndividual(initPopulation, N)
@@ -106,9 +111,16 @@ function es(  objfun::Function, N::Int;
         keep(interim, :bestFitoff, copy(fitoff[1]), store)
         keep(interim, :individual, copy(population[1]), store)
 
+        if showBar
+            bar(count, iterations)
+        end
+
         # termination condition
         count += 1
         if count == iterations || termination(stgpop[1])
+            if showBar
+                bar(iterations, iterations)
+            end
             break
         end
         verbose && println("BEST: $(fitness[1]): $(stgpop[1])")
