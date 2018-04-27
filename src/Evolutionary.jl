@@ -59,7 +59,7 @@ module Evolutionary
             if !haskey(col, v)
                 col[v] = typeof(vv)[]
             end
-            push!(col[v], vv)
+            push!(col[v], vv)   
         end
     end
 

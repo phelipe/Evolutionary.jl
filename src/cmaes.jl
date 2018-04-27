@@ -7,13 +7,13 @@
 # λ is the number of offspring.
 #
 function cmaes( objfun::Function, N::Int;
-                initPopulation::Individual = ones(N),
-                initStrategy::Strategy = strategy(τ = sqrt(N), τ_c = N^2, τ_σ = sqrt(N)),
-                μ::Integer = 1,
-                λ::Integer = 1,
-                iterations::Integer = 1_000,
-                tol::Float64 = 1e-10,
-                verbose = false)
+    initPopulation::Individual = ones(N),
+    initStrategy::Strategy = strategy(τ = sqrt(N), τ_c = N^2, τ_σ = sqrt(N)),
+    μ::Integer = 1,
+    λ::Integer = 1,
+    iterations::Integer = 1_000,
+    tol::Float64 = 1e-10,
+    verbose = false)
 
     @assert μ < λ "Offspring population must be larger then parent population"
 
@@ -35,6 +35,7 @@ function cmaes( objfun::Function, N::Int;
     # Generation cycle
     count = 0
     while true
+
         SqrtC = (C + C')/2.0
         try
             SqrtC = chol(SqrtC)
@@ -61,10 +62,10 @@ function cmaes( objfun::Function, N::Int;
         ɛ = vec(mean(E[:,idx], 2))
         parent += w            #  forming recombinant perent for next generation (L2)
         s = (1.0 - 1.0/initStrategy[:τ])*s +
-            (sqrt(μ/initStrategy[:τ] * (2.0 - 1.0/initStrategy[:τ]))/σ)*w      # (L3)
+        (sqrt(μ/initStrategy[:τ] * (2.0 - 1.0/initStrategy[:τ]))/σ)*w      # (L3)
         C = (1.0 - 1.0/initStrategy[:τ_c]).*C + (s./initStrategy[:τ_c])*s'     # (L4)
         s_σ = (1.0 - 1.0/initStrategy[:τ_σ])*s_σ +
-            sqrt(μ/initStrategy[:τ_σ]*(2.0 - 1.0/initStrategy[:τ_σ]))*ɛ        # (L5)
+        sqrt(μ/initStrategy[:τ_σ]*(2.0 - 1.0/initStrategy[:τ_σ]))*ɛ        # (L5)
         σ = σ*exp(((s_σ'*s_σ)[1] - N)/(2*N*sqrt(N)))                           # (L6)
 
         # termination condition
@@ -74,6 +75,5 @@ function cmaes( objfun::Function, N::Int;
         end
         verbose && println("BEST: $(fitpop[1]): $(σ)")
     end
-
     return population[1], fitpop[1], count
 end
