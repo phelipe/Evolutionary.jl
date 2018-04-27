@@ -28,13 +28,18 @@ function ga(objfun::Function, N::Int;
     tolIter = 10,
     verbose = false,
     debug = false,
-    interim = false)
+    interim = false,
+    showBar = false)
 
     store = Dict{Symbol,Any}()
 
     # Setup parameters
     elite = isa(ɛ, Int) ? ɛ : round(Int, ɛ * populationSize)
     fitFunc = inverseFunc(objfun)
+
+    if showBar
+        bar(0.0, iterations)
+    end
 
     # Initialize population
     individual = getIndividual(initPopulation, N)
@@ -67,7 +72,6 @@ function ga(objfun::Function, N::Int;
     fittolitr = 1
     while true
         debug && println("BEST: $(fitidx)")
-
 
         # Select offspring
         selected = selection(fitness, populationSize)
@@ -122,10 +126,18 @@ function ga(objfun::Function, N::Int;
         # Verbose step
         verbose &&  println("BEST: $(bestFitness): $(population[bestIndividual]), G: $(itr)")
 
+
+        if showBar
+            bar(itr, iterations)
+        end
+
         # Terminate:
         #  if fitness tolerance is met for specified number of steps
         if fittol < tol
             if fittolitr > tolIter
+                if showBar
+                    bar(iterations, iterations)
+                end
                 break
             else
                 fittolitr += 1
@@ -133,6 +145,7 @@ function ga(objfun::Function, N::Int;
         else
             fittolitr = 1
         end
+
         # if number of iterations more then specified
         if itr >= iterations
             break

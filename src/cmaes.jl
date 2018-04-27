@@ -13,9 +13,14 @@ function cmaes( objfun::Function, N::Int;
     λ::Integer = 1,
     iterations::Integer = 1_000,
     tol::Float64 = 1e-10,
-    verbose = false)
+    verbose = false,
+    showBar = false)
 
     @assert μ < λ "Offspring population must be larger then parent population"
+
+    if showBar
+        bar(0.0, iterations)
+    end
 
     # Initialize parent population
     individual = getIndividual(initPopulation, N)
@@ -68,9 +73,15 @@ function cmaes( objfun::Function, N::Int;
         sqrt(μ/initStrategy[:τ_σ]*(2.0 - 1.0/initStrategy[:τ_σ]))*ɛ        # (L5)
         σ = σ*exp(((s_σ'*s_σ)[1] - N)/(2*N*sqrt(N)))                           # (L6)
 
+        if showBar
+            bar(count, iterations)
+        end
         # termination condition
         count += 1
         if count == iterations || σ < tol
+            if showBar
+                bar(iterations, iterations)
+            end
             break
         end
         verbose && println("BEST: $(fitpop[1]): $(σ)")
