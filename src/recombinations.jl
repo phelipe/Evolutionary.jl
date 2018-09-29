@@ -199,11 +199,11 @@ function ox1{T <: Vector}(v1::T, v2::T)
     j = to+1 > s ? 1 : to+1 #child2 index
     for i in vcat(to+1:s,1:from-1)
         while in(v1[k],c1)
-            k = k+1 > s? 1 : k+1
+            k = k+1 > s ? 1 : k+1
         end
         c1[i] = v1[k]
         while in(v2[j],c2)
-            j = j+1 > s? 1 : j+1
+            j = j+1 > s ? 1 : j+1
         end
         c2[i] = v2[j]
     end
