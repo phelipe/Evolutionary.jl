@@ -1,5 +1,7 @@
 module Evolutionary
 
+using Random
+
 export Strategy, strategy, inverse, mutationwrapper,
 # ES mutations
 isotropic, anisotropic, isotropicSigma, anisotropicSigma,
@@ -17,7 +19,7 @@ ranklinear, uniformranking, roulette, sus, tournament, #truncation
 es, cmaes, ga
 
 const Strategy = Dict{Symbol,Any}
-const Individual = Union{Vector, Matrix, Function, Void}
+const Individual = Union{Vector, Matrix, Function, Nothing}
 
 # Wrapping function for strategy
 function strategy(; kwargs...)
@@ -30,7 +32,7 @@ end
 
 # Inverse function for reversing optimization direction
 function inverseFunc(f::Function)
-    function fitnessFunc{T <: Vector}(x::T)
+    function fitnessFunc(x::T) where {T <: Vector}
         return 1.0/(f(x)+eps())
     end
     return fitnessFunc
@@ -72,13 +74,13 @@ function bar(n,total)
     for a = 0:size
         text *="█"
     end
-    print_with_color(:red,text)
+    printstyled(text, color=:red)
     text = ""
     for a = 1:(50.0 - size)
         text *="█"
     end
-    print_with_color(:white,text)
-    print("| $(round(percent,1))%")
+    printstyled(text, color=:white)
+    print("| $(round(percent))%")
 end
 
 

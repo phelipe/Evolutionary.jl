@@ -6,6 +6,8 @@
 # μ is the number of parents
 # λ is the number of offspring.
 #
+using LinearAlgebra
+using Statistics
 function cmaes( objfun::Function, N::Int;
     initPopulation::Individual = ones(N),
     initStrategy::Strategy = strategy(τ = sqrt(N), τ_c = N^2, τ_σ = sqrt(N)),
@@ -25,12 +27,12 @@ function cmaes( objfun::Function, N::Int;
     # Initialize parent population
     individual = getIndividual(initPopulation, N)
     population = fill(individual, μ)
-    offspring = Array{typeof(individual)}(λ)
+    offspring = Array{typeof(individual)}(undef, λ)
     fitpop = fill(Inf, μ)
     fitoff = fill(Inf, λ)
 
     parent = copy(individual)
-    C = eye(N)
+    C = Diagonal{Float64}(I, N)
     s = zeros(N)
     s_σ = zeros(N)
     σ = 1.0

@@ -12,10 +12,11 @@
 #                 are guaranteed to survive to the next generation.
 #                 Floating number specifies fraction of population.
 #
+
 function ga(objfun::Function, N::Int;
     initPopulation::Individual = ones(N),
-    lowerBounds::Union{Void, Vector} = nothing,
-    upperBounds::Union{Void, Vector} = nothing,
+    lowerBounds::Union{Nothing, Vector} = nothing,
+    upperBounds::Union{Nothing, Vector} = nothing,
     populationSize::Int = 50,
     crossoverRate::Float64 = 0.8,
     mutationRate::Float64 = 0.1,
@@ -41,28 +42,29 @@ function ga(objfun::Function, N::Int;
         bar(0.0, iterations)
     end
 
-    # Initialize population
-    individual = getIndividual(initPopulation, N)
-    fitness = zeros(populationSize)
-    population = Array{typeof(individual)}(populationSize)
-    offspring = similar(population)
-
-    # Generate population
-    for i in 1:populationSize
-        if isa(initPopulation, Vector)
-            population[i] = initPopulation.*rand(eltype(initPopulation), N)
-        elseif isa(initPopulation, Matrix)
-            population[i] = initPopulation[:, i]
-        elseif isa(initPopulation, Function)
-            population[i] = initPopulation(N) # Creation function
-        else
-            error("Cannot generate population")
-        end
-        fitness[i] = fitFunc(population[i])
-        debug && println("INIT $(i): $(population[i]) : $(fitness[i])")
-    end
-    fitidx = sortperm(fitness, rev = true)
-    keep(interim, :fitness, copy(fitness), store)
+     # Initialize population
+     individual = getIndividual(initPopulation, N)
+     fitness = zeros(populationSize)
+     population = Array{typeof(individual)}(undef, populationSize)
+     offspring = similar(population)
+ 
+     # Generate population
+     for i in 1:populationSize
+         if isa(initPopulation, Vector)
+             population[i] = initPopulation.*rand(eltype(initPopulation), N)
+         elseif isa(initPopulation, Matrix)
+             population[i] = initPopulation[:, i]
+         elseif isa(initPopulation, Function)
+             population[i] = initPopulation(N) # Creation function
+         else
+             error("Cannot generate population")
+         end
+         fitness[i] = fitFunc(population[i])
+         debug && println("INIT $(i): $(population[i]) : $(fitness[i])")
+     end
+     fitidx = sortperm(fitness, rev = true)
+     keep(interim, :fitness, copy(fitness), store)
+ 
 
     # Generate and evaluate offspring
     itr = 1
